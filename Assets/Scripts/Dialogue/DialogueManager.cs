@@ -22,16 +22,20 @@ public class DialogueManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
+    }
 
-        // FORCE TMP to initialize on main thread
-        if (dialogueText != null)
+    void Start()
+    {
+        // FIX: Only hide the UI if the dialogue hasn't already started.
+        // This prevents the Manager from closing the box if an NPC opened it 
+        // in the exact same frame.
+        if (!dialogueActive)
         {
-            dialogueText.text = "";
-        }
+            if (dialogueText != null)
+                dialogueText.text = "";
 
-        if (dialogueBox != null)
-        {
-            dialogueBox.SetActive(false);
+            if (dialogueBox != null)
+                dialogueBox.SetActive(false);
         }
     }
 
@@ -46,7 +50,9 @@ public class DialogueManager : MonoBehaviour
     public void StartDialogue(string[] dialogueLines)
     {
         dialogueActive = true;
-        dialogueBox.SetActive(true);
+        
+        if (dialogueBox != null)
+            dialogueBox.SetActive(true);
 
         lines.Clear();
 
@@ -64,13 +70,16 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        dialogueText.text = lines.Dequeue();
+        if (dialogueText != null)
+            dialogueText.text = lines.Dequeue();
     }
 
-    void EndDialogue()
+   public void EndDialogue()
     {
         dialogueActive = false;
-        dialogueBox.SetActive(false);
+        
+        if (dialogueBox != null)
+            dialogueBox.SetActive(false);
     }
 
     public bool IsDialogueActive()
